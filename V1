@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Prediction Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f2f5; text-align: center; padding: 20px; }
+    h1 { color: #1e3a8a; }
+    .game { background: #fff; padding: 15px; margin: 10px auto; width: 300px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+    .teamA { background-color: #3b82f6; color: white; }
+    .teamB { background-color: #ef4444; color: white; }
+    #leaderboard { margin-top: 30px; }
+    #leaderboard ul { list-style: none; padding: 0; }
+  </style>
+</head>
+<body>
+  <h1>Sports Prediction Game</h1>
+
+  <div>
+    <label>Enter your name: <input type="text" id="username" placeholder="Your name"></label>
+    <button onclick="setUsername()">Start</button>
+  </div>
+
+  <div id="gamesContainer"></div>
+
+  <div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboardList"></ul>
+  </div>
+
+  <script>
+    // ===== Mock Games =====
+    const games = [
+      { id: 1, teamA: 'Lakers', teamB: 'Warriors', result: null },
+      { id: 2, teamA: 'Patriots', teamB: 'Dolphins', result: null },
+      { id: 3, teamA: 'Yankees', teamB: 'Red Sox', result: null }
+    ];
+
+    // ===== Users & Scores =====
+    let currentUser = '';
+    let scores = {};
+
+    function setUsername() {
+      const input = document.getElementById('username');
+      if (input.value.trim() === '') return alert('Enter your name!');
+      currentUser = input.value.trim();
+      if (!scores[currentUser]) scores[currentUser] = 0;
+      input.disabled = true;
+      loadGames();
+      updateLeaderboard();
+    }
+
+    function loadGames() {
+      const container = document.getElementById('gamesContainer');
+      container.innerHTML = '';
+      games.forEach(game => {
+        const gameDiv = document.createElement('div');
+        gameDiv.className = 'game';
+        gameDiv.innerHTML = `
+          <p><strong>${game.teamA}</strong> vs <strong>${game.teamB}</strong></p>
+          <button class="teamA" onclick="predict(${game.id}, 'A')">${game.teamA}</button>
+          <button class="teamB" onclick="predict(${game.id}, 'B')">${game.teamB}</button>
+        `;
+        container.appendChild(gameDiv);
+      });
+    }
+
+    function predict(gameId, team) {
+      const game = games.find(g => g.id === gameId);
+      if (!game) return;
+      // For prototype: simulate result randomly if not already set
+      if (!game.result) game.result = Math.random() < 0.5 ? 'A' : 'B';
+
+      if (team === game.result) {
+        scores[currentUser] += 10; // 10 points per correct prediction
+        alert(`Correct! You earned 10 points.`);
+      } else {
+        alert(`Wrong! No points this time.`);
+      }
+      updateLeaderboard();
+    }
+
+    function updateLeaderboard() {
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      const sortedUsers = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
+      sortedUsers.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = `${user}: ${scores[user]} pts`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
